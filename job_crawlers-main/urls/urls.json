@@ -47,7 +47,8 @@
                 "categories": [
                     "Software Engineering",
                     "Information Technology",
-                    "Silicon Hardware Engineering"
+                    "Silicon Hardware Engineering",
+                    "Intern"
                 ]
             }
         ],
@@ -66,7 +67,11 @@
                     "cyber",
                     "automation",
                     "analytics",
-                    "digital"
+                    "digital",
+                    "intern",
+                    "internship",
+                    "trainee",
+                    "co-op"
                 ]
             }
         ]

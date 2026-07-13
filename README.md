@@ -18,42 +18,61 @@ Below is the architecture diagram illustrating how JobRADAR works:
 
 ## How to Set Up JobRADAR Locally 🛠️
 
-### Step 1: Find and Add Your Job URL 🌍
+### Step 1: Choose the country and the companies 🌍
 1. Download the project repository.
-2. Navigate to `job_crawlers-main/urls/urls.json`.
-3. For each company, add an array of job URLs. Example:
+2. Open `job_crawlers-main/urls/urls.json`. It ships tracking **Costa Rica** for **Amazon, Microsoft, Intel and P&G**:
    ```json
-   "Google": [
-       "https://www.google.com/about/careers/applications/jobs/results/?q=product%20manager&location=United%20States&target_level=EARLY&degree=MASTERS&employment_type=FULL_TIME"
-   ]
+   {
+       "country": "Costa Rica",
+       "companies": {
+           "Amazon":    [{ "country_code": "CRI", "base_query": "", "result_limit": 100 }],
+           "Microsoft": [{ "location": "Costa Rica", "query": "", "max_jobs": 100 }],
+           "Intel":     [{ "tenant": "intel.wd1", "site": "intel/External", "search_text": "", "max_jobs": 100 }],
+           "P&G":       [{ "tenant": "pg.wd5", "site": "pg/1000", "search_text": "", "max_jobs": 100 }]
+       }
+   }
    ```
-4. Find job URLs on the career sites of your preferred companies and add them to the JSON file.
+3. `country` is what every crawler filters on. `base_query` / `query` / `search_text` narrow the search down to a role (for example `"software engineer"`); leave them empty to get every job in the country.
+4. Amazon needs the [ISO-3166 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) of the country. Intel and P&G run on Workday: their location filter is resolved by name at runtime, so only `tenant` and `site` are needed.
 
-### Step 2: Email Setup for Job Notifications 📧
-1. Open `job_crawlers-main/email_config/email_setup.py`.
-2. Update the following function with your Gmail credentials:
-   ```python
-   def send_email(job_details_list, receiverEmail=None):
-       from_email = "ENTER_YOUR_EMAIL"
-       from_password = "ENTER_YOUR_PASSWORD"
-       print("In send email function " + receiverEmail)
-       to_email = receiverEmail
-   ```
-3. Set up Google SMTP for secure email sending.
+### Step 2: Set Up Notifications 🔔
+Alerts go out as **push notifications through [ntfy](https://ntfy.sh)**, which needs no account and no token: the topic name *is* the address. Pick one nobody can guess, install the ntfy app (Android / iOS / web) and subscribe to it.
+```bash
+NTFY_TOPIC=job-radar-cr-<something-random>
+```
+
+Email is an optional second channel. It is the only part of the project that needs credentials, so it stays off unless you set them (`JOB_RADAR_EMAIL_PASSWORD` must be a Gmail [app password](https://myaccount.google.com/apppasswords), never your account password):
+```bash
+JOB_RADAR_EMAIL=you@gmail.com
+JOB_RADAR_EMAIL_PASSWORD=your_app_password
+JOB_RADAR_DEFAULT_RECEIVER=you@gmail.com
+```
+
+Jobs that were already announced are remembered in `job_crawlers-main/data/seen_jobs.json`, so there is no database to run. Delete the file to be notified about every open position again.
 
 ### Step 3 (Optional): Add Your Own Crawlers 🤖
 1. Navigate to `job_crawlers-main/crawlers`.
-2. Each crawler is designed for a specific company.
-3. The crawlers are asynchronous to handle multiple job sites efficiently.
-4. Modify or add new crawlers as needed.
+2. Each crawler queries the company's public job API and returns `company / title / number / link / location` dicts.
+3. Companies hosted on Workday need no new crawler: add them to `urls.json` and reuse `workday_crawler.py`.
+4. Register the new crawler in `CRAWLERS` inside `app.py`.
 
 ### Step 4: Start the Crawler 🚀
-1. Open `main.py`.
-2. Specify which company you want to track.
-3. Run the script to initiate job tracking:
-   ```bash
-   python main.py
-   ```
+```bash
+cd job_crawlers-main
+python app.py
+```
+`POST /main` with `{"email": "you@gmail.com"}` (this is what the frontend button does) runs a first check right away and then every 15 minutes. `GET /check_new_job` runs a single check on demand.
+
+### Step 5 (Optional): Run it in the cloud, without keeping a machine on ☁️
+`job_check.py` is a single pass over every crawler, and `.github/workflows/job-radar.yml` runs it on a 15 minute cron, so there is no server, no database and **no secret** to hand over:
+
+1. Push the project to your own GitHub repository (public or private, whichever you prefer).
+2. In *Settings → Secrets and variables → Actions → Variables*, add the variable `NTFY_TOPIC` with your topic. It is a variable and not a secret on purpose: it is an address, not a credential.
+3. Open the *Actions* tab, pick **Job Radar** and hit *Run workflow* to check the setup. From then on it runs on its own.
+
+State lives in `data/seen_jobs.json`, which the workflow commits back to the repository after every run using the `GITHUB_TOKEN` that GitHub generates for the job. The frontend and `app.py` are not part of this path: the scheduler is GitHub's cron.
+
+Two things worth knowing: GitHub queues cron runs on shared runners, so in practice checks land every 20-30 minutes rather than exactly every 15; and GitHub disables scheduled workflows after 60 days without repository activity (it emails you, and one click re-enables them).
 
 ---
 
@@ -62,7 +81,8 @@ Below is the architecture diagram illustrating how JobRADAR works:
 ### Prerequisites ✅
 - **Node.js & npm** (for frontend)
 - **Python & required packages** (for backend)
-- **MongoDB** (for storing job data)
+
+No database is needed: the jobs already announced are kept in `job_crawlers-main/data/seen_jobs.json`.
 
 ### Installation 📦
 #### 1. Frontend Setup

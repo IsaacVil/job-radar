@@ -1,74 +1,83 @@
-import json
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import time
-from email_config.email_setup import send_email
-from database.mongo import ensure_company_document, add_jobs_if_not_exists
 
-# Function to run the crawler for a given URL
-def run_crawler(url, num_job):
-    list_of_jobs = []
-    driver = webdriver.Chrome()  # Ensure you have the appropriate WebDriver in PATH
+import requests
 
-    try:
-        for i in range(num_job):
-            driver.get(url)
-            time.sleep(6)  # Let the page load
+from crawlers.common import get_country, get_searches, publish_new_jobs
 
-            job_card_selector = f'.ms-List-cell[data-list-index="{i}"]'
-            job_card = driver.find_element(By.CSS_SELECTOR, job_card_selector)
-            job_card.click()
-            time.sleep(4)
+COMPANY = "Microsoft"
+SEARCH_API = "https://apply.careers.microsoft.com/api/pcsx/search"
+JOB_PAGE = "https://jobs.careers.microsoft.com/global/en/job/{job_id}"
+PAGE_SIZE = 20
+HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
 
-            job_title = driver.find_element(By.CSS_SELECTOR, 'h1').text
-            job_number = driver.find_element(By.XPATH, '//div[text()="Job number"]/following-sibling::div').text
-            time.sleep(2)
 
-            job_link = driver.current_url
-            job_details = {
-                "company": "Microsoft",
-                "title": job_title,
-                "number": job_number,
-                "link": job_link
-            }
-            list_of_jobs.append(job_details)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        driver.quit()
-    return list_of_jobs
+def search_jobs(search, country, start):
+    params = {
+        "domain": "microsoft.com",
+        "query": search.get("query", ""),
+        "location": search.get("location", country),
+        "start": start,
+        "num": PAGE_SIZE
+    }
+    response = requests.get(SEARCH_API, params=params, headers=HEADERS, timeout=30)
+    response.raise_for_status()
+    return response.json().get("data") or {}
 
-# Asynchronous function to run crawler in thread pool
-async def async_run_crawler(executor, url, num_jobs):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, run_crawler, url, num_jobs)
+
+def fetch_jobs(search, country):
+    jobs = []
+    start = 0
+    total = None
+    max_jobs = search.get("max_jobs", 100)
+
+    while total is None or (start < total and start < max_jobs):
+        data = search_jobs(search, country, start)
+        total = data.get("count", 0)
+        positions = data.get("positions", [])
+        if not positions:
+            break
+
+        for position in positions:
+            # A posting can be open in several countries at once, keep it only if one of them is ours
+            locations = position.get("locations") or []
+            if not any(country.lower() in location.lower() for location in locations):
+                continue
+
+            job_id = position.get("displayJobId") or position.get("id")
+            jobs.append({
+                "company": COMPANY,
+                "title": position.get("name"),
+                "number": str(job_id),
+                "link": JOB_PAGE.format(job_id=job_id),
+                "location": ", ".join(locations)
+            })
+
+        start += PAGE_SIZE
+
+    return jobs
+
 
 async def run_crawler_for_microsoft(receiverEmail=None):
-    file_path = "urls/urls.json"
-    ensure_company_document("Microsoft")
-    with open(file_path, 'r') as file:
-        position_urls = json.load(file)
+    country = get_country()
+    searches = get_searches(COMPANY)
+    results = await asyncio.gather(
+        *(asyncio.to_thread(fetch_jobs, search, country) for search in searches),
+        return_exceptions=True
+    )
 
-    microsoft_urls = position_urls.get("Microsoft", [])
     all_jobs = []
-    num_jobs = 20  # You can adjust this as needed
+    for search, result in zip(searches, results):
+        if isinstance(result, Exception):
+            print(f"{COMPANY}: search {search} failed: {result}")
+            continue
+        all_jobs.extend(result)
+        publish_new_jobs(COMPANY, result, receiverEmail)
 
-    with ThreadPoolExecutor() as executor:
-        tasks = [async_run_crawler(executor, url, num_jobs) for url in microsoft_urls]
-        for task in asyncio.as_completed(tasks):
-            jobs = await task
-            all_jobs.extend(jobs)
-            if jobs:
-                added_jobs = add_jobs_if_not_exists(jobs)
-                print("Got the folowing new jobs from database")
-                print(added_jobs)
-                if added_jobs:
-                    send_email(added_jobs, receiverEmail)
-
-    print(all_jobs)
     return all_jobs
 
-# if __name__ == "__main__":
-#     asyncio.run(run_crawler_for_microsoft())
+
+if __name__ == "__main__":
+    asyncio.run(run_crawler_for_microsoft())

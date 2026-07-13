@@ -1,7 +1,9 @@
+import os
+
 import pymongo
 
-# Replace <connection_string> with your MongoDB Atlas connection string
-client = pymongo.MongoClient("mongodb://localhost:27017")
+# Set MONGO_URI to point at MongoDB Atlas instead of a local server
+client = pymongo.MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017"))
 
 # Connect to the database and collection
 db = client["crawler"]  # Replace with your database name
@@ -25,6 +27,7 @@ def add_jobs_if_not_exists(jobs_list):
         job_title = job['title']
         job_number = job['number']
         job_link = job['link']
+        job_location = job.get('location', '')
 
         # Ensure the company document exists
         # ensure_company_document(company_name)
@@ -43,7 +46,8 @@ def add_jobs_if_not_exists(jobs_list):
                 "title": job_title,
                 "number": job_number,
                 "link": job_link,
-                "company":company_name
+                "company":company_name,
+                "location": job_location
             }
             collection.update_one(
                 {"company": company_name},

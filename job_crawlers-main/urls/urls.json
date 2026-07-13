@@ -5,14 +5,37 @@
             {
                 "country_code": "CRI",
                 "base_query": "",
-                "result_limit": 100
+                "result_limit": 100,
+                "categories": [
+                    "Software Development",
+                    "Solutions Architect",
+                    "Systems, Quality, & Security Engineering",
+                    "Machine Learning Science",
+                    "Data Science",
+                    "Business Intelligence",
+                    "Database Administration",
+                    "Hardware Development",
+                    "Research Science",
+                    "Project/Program/Product Management--Technology",
+                    "Operations, IT, & Support Engineering"
+                ]
             }
         ],
         "Microsoft": [
             {
                 "location": "Costa Rica",
                 "query": "",
-                "max_jobs": 100
+                "max_jobs": 100,
+                "categories": [
+                    "Software Engineering",
+                    "Data Science",
+                    "Research, Applied, & Data Sciences",
+                    "Hardware Engineering",
+                    "Security Engineering",
+                    "Technical Support",
+                    "Program Management",
+                    "Product Management"
+                ]
             }
         ],
         "Intel": [
@@ -20,7 +43,12 @@
                 "tenant": "intel.wd1",
                 "site": "intel/External",
                 "search_text": "",
-                "max_jobs": 100
+                "max_jobs": 100,
+                "categories": [
+                    "Software Engineering",
+                    "Information Technology",
+                    "Silicon Hardware Engineering"
+                ]
             }
         ],
         "P&G": [
@@ -28,7 +56,18 @@
                 "tenant": "pg.wd5",
                 "site": "pg/1000",
                 "search_text": "",
-                "max_jobs": 100
+                "max_jobs": 100,
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "automation",
+                    "analytics",
+                    "digital"
+                ]
             }
         ]
     }

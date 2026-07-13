@@ -25,15 +25,18 @@ Below is the architecture diagram illustrating how JobRADAR works:
    {
        "country": "Costa Rica",
        "companies": {
-           "Amazon":    [{ "country_code": "CRI", "base_query": "", "result_limit": 100 }],
-           "Microsoft": [{ "location": "Costa Rica", "query": "", "max_jobs": 100 }],
-           "Intel":     [{ "tenant": "intel.wd1", "site": "intel/External", "search_text": "", "max_jobs": 100 }],
-           "P&G":       [{ "tenant": "pg.wd5", "site": "pg/1000", "search_text": "", "max_jobs": 100 }]
+           "Amazon":    [{ "country_code": "CRI", "categories": ["Software Development", "Solutions Architect"] }],
+           "Microsoft": [{ "location": "Costa Rica", "categories": ["Software Engineering"] }],
+           "Intel":     [{ "tenant": "intel.wd1", "site": "intel/External", "categories": ["Software Engineering"] }],
+           "P&G":       [{ "tenant": "pg.wd5", "site": "pg/1000", "title_keywords": ["software", "data"] }]
        }
    }
    ```
-3. `country` is what every crawler filters on. `base_query` / `query` / `search_text` narrow the search down to a role (for example `"software engineer"`); leave them empty to get every job in the country.
-4. Amazon needs the [ISO-3166 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) of the country. Intel and P&G run on Workday: their location filter is resolved by name at runtime, so only `tenant` and `site` are needed.
+   (shortened: the file itself lists every technical category of each company)
+3. `country` is what every crawler filters on. Amazon needs the [ISO-3166 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) as well. Intel and P&G run on Workday: their location filter is resolved by name at runtime, so only `tenant` and `site` are needed.
+4. `categories` keeps only the jobs a company files under those categories, using **that company's own taxonomy** (Amazon calls it a category, Microsoft a department, Workday a job family). The name has to match theirs exactly. Remove the key to receive every job in the country.
+5. `title_keywords` keeps only the jobs whose title contains one of the words, matched whole so `IT` does not match `Digital`. It is the fallback for P&G, whose Workday site publishes no categories.
+6. Not sure which categories exist? Run a check and read the log: every crawler prints the categories it filtered out, for example `Microsoft: ignored jobs in Digital Solution Area Specialists (1)`. Those names are the ones you can add.
 
 ### Step 2: Set Up Notifications 🔔
 Alerts go out as **push notifications through [ntfy](https://ntfy.sh)**, which needs no account and no token: the topic name *is* the address. Pick one nobody can guess, install the ntfy app (Android / iOS / web) and subscribe to it.

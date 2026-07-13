@@ -2,7 +2,7 @@ import asyncio
 
 import requests
 
-from crawlers.common import get_country, get_searches, publish_new_jobs
+from crawlers.common import get_country, get_searches, matches_title_keywords, publish_new_jobs
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -39,27 +39,34 @@ def matches_country(descriptor, country):
     return any(part.strip().lower() == country.lower() for part in parts)
 
 
-def find_country_facets(node, country, parameter=None, found=None):
-    """Look the location facet ids up by their label: they are tenant specific and change over time."""
+def matches_category(descriptor, categories):
+    return (descriptor or "").strip().lower() in [category.lower() for category in categories]
+
+
+def find_facets(node, matches, parameter=None, found=None):
+    """Look facet ids up by their label: they are tenant specific and change over time."""
     if found is None:
         found = {}
 
     if isinstance(node, dict):
         parameter = node.get("facetParameter", parameter)
-        if node.get("id") and matches_country(node.get("descriptor"), country):
+        if node.get("id") and matches(node.get("descriptor")):
             found.setdefault(parameter, []).append(node["id"])
         for value in node.values():
-            find_country_facets(value, country, parameter, found)
+            find_facets(value, matches, parameter, found)
     elif isinstance(node, list):
         for value in node:
-            find_country_facets(value, country, parameter, found)
+            find_facets(value, matches, parameter, found)
 
     return found
 
 
 def fetch_jobs(company, search, country):
-    facets_response = search_jobs(search, {}, "", 0)
-    applied_facets = find_country_facets(facets_response.get("facets", []), country)
+    facets = search_jobs(search, {}, "", 0).get("facets", [])
+    categories = search.get("categories", [])
+    keywords = search.get("title_keywords", [])
+
+    applied_facets = find_facets(facets, lambda descriptor: matches_country(descriptor, country))
     search_text = search.get("search_text", "")
 
     if not applied_facets:
@@ -67,7 +74,16 @@ def fetch_jobs(company, search, country):
         print(f"{company}: no Workday location facet for {country}, falling back to a text search")
         search_text = f"{search_text} {country}".strip()
 
+    if categories:
+        # Intel groups its jobs in job families; tenants without that facet fall back to title_keywords
+        category_facets = find_facets(facets, lambda descriptor: matches_category(descriptor, categories))
+        if category_facets:
+            applied_facets.update(category_facets)
+        else:
+            print(f"{company}: no Workday category facet matched {categories}")
+
     jobs = []
+    dropped = 0
     offset = 0
     total = None
     max_jobs = search.get("max_jobs", 100)
@@ -82,19 +98,27 @@ def fetch_jobs(company, search, country):
         for posting in postings:
             location = posting.get("locationsText", "")
             external_path = posting.get("externalPath", "")
+            title = posting.get("title")
+
             if not applied_facets and country.lower() not in f"{location} {external_path}".replace("-", " ").lower():
+                continue
+            if not matches_title_keywords(title, keywords):
+                dropped += 1
                 continue
 
             bullet_fields = posting.get("bulletFields") or []
             jobs.append({
                 "company": company,
-                "title": posting.get("title"),
+                "title": title,
                 "number": bullet_fields[0] if bullet_fields else external_path,
                 "link": job_url(search, external_path),
                 "location": location
             })
 
         offset += PAGE_SIZE
+
+    if dropped:
+        print(f"{company}: ignored {dropped} job(s) whose title matched no keyword")
 
     return jobs
 

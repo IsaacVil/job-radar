@@ -2,7 +2,7 @@ import asyncio
 
 import requests
 
-from crawlers.common import get_country, get_searches, publish_new_jobs
+from crawlers.common import get_country, get_searches, matches_title_keywords, publish_new_jobs, report_dropped
 
 COMPANY = "Microsoft"
 SEARCH_API = "https://apply.careers.microsoft.com/api/pcsx/search"
@@ -28,7 +28,12 @@ def search_jobs(search, country, start):
 
 
 def fetch_jobs(search, country):
+    # Microsoft calls its categories "departments" and returns one per posting
+    categories = [category.lower() for category in search.get("categories", [])]
+    keywords = search.get("title_keywords", [])
+
     jobs = []
+    dropped = {}
     start = 0
     total = None
     max_jobs = search.get("max_jobs", 100)
@@ -46,6 +51,14 @@ def fetch_jobs(search, country):
             if not any(country.lower() in location.lower() for location in locations):
                 continue
 
+            department = position.get("department") or "?"
+            if categories and department.lower() not in categories:
+                dropped[department] = dropped.get(department, 0) + 1
+                continue
+            if not matches_title_keywords(position.get("name"), keywords):
+                dropped[department] = dropped.get(department, 0) + 1
+                continue
+
             job_id = position.get("displayJobId") or position.get("id")
             jobs.append({
                 "company": COMPANY,
@@ -57,6 +70,7 @@ def fetch_jobs(search, country):
 
         start += PAGE_SIZE
 
+    report_dropped(COMPANY, dropped)
     return jobs
 
 

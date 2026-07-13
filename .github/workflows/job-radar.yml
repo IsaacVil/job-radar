@@ -15,7 +15,14 @@ permissions:
 
 jobs:
   check-new-jobs:
-    runs-on: ubuntu-latest
+    # Only ever run while the repository is public: those minutes are free and are never billed.
+    # If the repository is ever made private the job is skipped instead of started, so no runner
+    # is allocated and nothing can be charged. Check the Actions tab if the runs stop appearing.
+    if: github.event.repository.private == false
+
+    runs-on: ubuntu-latest # A standard runner. Larger runners are billed even on public repos.
+    timeout-minutes: 10 # A hard ceiling, so a hung crawler can never burn time indefinitely
+
     defaults:
       run:
         working-directory: job_crawlers-main

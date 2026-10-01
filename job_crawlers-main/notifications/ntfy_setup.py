@@ -2,6 +2,8 @@ import os
 
 import requests
 
+from notifications.labels import label_title
+
 # ntfy needs no account and no token: the topic name is the whole address.
 # Pick an unguessable one and subscribe to it from the ntfy app.
 NTFY_SERVER = os.environ.get("NTFY_SERVER", "https://ntfy.sh")
@@ -15,7 +17,7 @@ def send_push(jobs):
         return
 
     company = jobs[0]["company"]
-    lines = [f"{job['title']} - {job.get('location', '')}\n{job['link']}" for job in jobs[:MAX_JOBS_IN_MESSAGE]]
+    lines = [f"{label_title(job)} - {job.get('location', '')}\n{job['link']}" for job in jobs[:MAX_JOBS_IN_MESSAGE]]
     remaining = len(jobs) - MAX_JOBS_IN_MESSAGE
     if remaining > 0:
         lines.append(f"...and {remaining} more")
@@ -24,8 +26,9 @@ def send_push(jobs):
         response = requests.post(
             f"{NTFY_SERVER}/{NTFY_TOPIC}",
             data="\n\n".join(lines).encode("utf-8"),
+            # The title goes in the query string: HTTP headers are latin-1 and cannot carry the emoji
+            params={"title": label_title({"company": company, "title": f"{len(jobs)} new {company} job(s)"})},
             headers={
-                "Title": f"{len(jobs)} new {company} job(s)",
                 "Tags": "briefcase",
                 "Click": jobs[0]["link"]
             },

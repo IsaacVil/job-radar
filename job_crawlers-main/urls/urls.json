@@ -23,6 +23,9 @@
         ],
         "Microsoft": [
             {
+                "host": "apply.careers.microsoft.com",
+                "domain": "microsoft.com",
+                "job_page": "https://jobs.careers.microsoft.com/global/en/job/{job_id}",
                 "location": "Costa Rica",
                 "query": "",
                 "max_jobs": 100,
@@ -72,6 +75,309 @@
                     "internship",
                     "trainee",
                     "co-op"
+                ]
+            }
+        ],
+        "IBM": [
+            {
+                "max_jobs": 200,
+                "categories": [
+                    "Software Engineering",
+                    "Infrastructure & Technology",
+                    "Data & Analytics",
+                    "Cloud",
+                    "Security",
+                    "Research",
+                    "Product Management",
+                    "Project Management"
+                ]
+            },
+            {
+                "max_jobs": 200,
+                "categories": [
+                    "Consulting"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
+                ]
+            }
+        ],
+        "Konrad": [
+            {
+                "board": "konradgroup",
+                "locations": [
+                    "Costa Rica",
+                    "San José"
+                ],
+                "categories": [
+                    "Web",
+                    "Mobile",
+                    "Data",
+                    "QA",
+                    "Digital Delivery"
+                ]
+            }
+        ],
+        "Cisco": [
+            {
+                "tenant": "cisco.wd5",
+                "site": "cisco/Cisco_Careers",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Engineering",
+                    "Information Technology"
+                ]
+            },
+            {
+                "tenant": "cisco.wd5",
+                "site": "cisco/Cisco_Careers",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Apprentice & Intern"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
+                ]
+            }
+        ],
+        "HP": [
+            {
+                "tenant": "hp.wd5",
+                "site": "hp/ExternalCareerSite",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Software",
+                    "Engineering",
+                    "Data & Information Technology",
+                    "Technical",
+                    "Engineering Services"
+                ]
+            }
+        ],
+        "Moody's": [
+            {
+                "host": "careers.moodys.com",
+                "categories": [
+                    "Engineering & Technology",
+                    "Product Development"
+                ]
+            },
+            {
+                "host": "careers.moodys.com",
+                "categories": [
+                    "Students & Early Careers"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
+                ]
+            }
+        ],
+        "HPE": [
+            {
+                "tenant": "hpe.wd5",
+                "site": "hpe/Jobsathpe",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Engineering",
+                    "Information Technology",
+                    "Technical",
+                    "Engineering Services"
+                ]
+            }
+        ],
+        "Boston Scientific": [
+            {
+                "host": "bostonscientific.eightfold.ai",
+                "domain": "bostonscientific.com",
+                "max_jobs": 100,
+                "categories": [
+                    "Information Technology",
+                    "Data Science & Business Intelligence"
+                ]
+            },
+            {
+                "host": "bostonscientific.eightfold.ai",
+                "domain": "bostonscientific.com",
+                "max_jobs": 100,
+                "categories": [
+                    "Engineering",
+                    "Interns/Graduates",
+                    "Project/Program Management"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
+                ]
+            }
+        ],
+        "Stryker": [
+            {
+                "tenant": "stryker.wd1",
+                "site": "stryker/StrykerCareers",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Information Systems Job Family Group",
+                    "Data Analysis Job Family Group"
+                ]
+            },
+            {
+                "tenant": "stryker.wd1",
+                "site": "stryker/StrykerCareers",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Engineering Job Family Group",
+                    "R&D Job Family Group",
+                    "Project/Program Management Job Family Group"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
+                ]
+            }
+        ],
+        "Equifax": [
+            {
+                "tenant": "equifax.wd5",
+                "site": "equifax/External",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Tech Dev and Client Services",
+                    "Data and Analytics",
+                    "Tech Engineering and Services Ops",
+                    "Security Governance and Compliance"
+                ]
+            },
+            {
+                "tenant": "equifax.wd5",
+                "site": "equifax/External",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Internships",
+                    "Project, Program and Process Management",
+                    "Product"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA"
                 ]
             }
         ]

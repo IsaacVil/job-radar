@@ -1,7 +1,10 @@
 import os
 import smtplib
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from notifications.labels import label_title
 
 # Gmail account the alerts are sent from. JOB_RADAR_EMAIL_PASSWORD must be a Google app password,
 # not the account password. JOB_RADAR_DEFAULT_RECEIVER is used when no email comes from the frontend.
@@ -19,12 +22,13 @@ def send_email(job_details_list, receiverEmail=None):
         print("No sender credentials, skipping the notification. Set JOB_RADAR_EMAIL and JOB_RADAR_EMAIL_PASSWORD.")
         return
 
-    subject = "New " + job_details_list[0]['company'] + " Job Posting: "
+    company = job_details_list[0]['company']
+    subject = label_title({"company": company, "title": f"New {company} Job Posting"})
 
     # Concatenate job details for all jobs into a single string
     body = ""
     for job_details in job_details_list:
-        body += f"Job Title: {job_details['title']}\n"
+        body += f"Job Title: {label_title(job_details)}\n"
         body += f"Job Number: {job_details['number']}\n"
         if job_details.get('location'):
             body += f"Location: {job_details['location']}\n"
@@ -33,8 +37,8 @@ def send_email(job_details_list, receiverEmail=None):
     msg = MIMEMultipart()
     msg['From'] = FROM_EMAIL
     msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
+    msg['Subject'] = Header(subject, 'utf-8')  # utf-8 so the emoji survive
+    msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
     try:
         with smtplib.SMTP('smtp.gmail.com', 587) as server:

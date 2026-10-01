@@ -20,7 +20,7 @@ Below is the architecture diagram illustrating how JobRADAR works:
 
 ### Step 1: Choose the country and the companies 🌍
 1. Download the project repository.
-2. Open `job_crawlers-main/urls/urls.json`. It ships tracking **Costa Rica** for **Amazon, Microsoft, Intel and P&G**:
+2. Open `job_crawlers-main/urls/urls.json`. It ships tracking **Costa Rica** for **Amazon, Microsoft, Intel and P&G**, plus Konrad, Cisco, HP, Moody's, HPE, Boston Scientific, Stryker, IBM and Equifax:
    ```json
    {
        "country": "Costa Rica",
@@ -35,7 +35,7 @@ Below is the architecture diagram illustrating how JobRADAR works:
    (shortened: the file itself lists every technical category of each company)
 3. `country` is what every crawler filters on. Amazon needs the [ISO-3166 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) as well. Intel and P&G run on Workday: their location filter is resolved by name at runtime, so only `tenant` and `site` are needed.
 4. `categories` keeps only the jobs a company files under those categories, using **that company's own taxonomy** (Amazon calls it a category, Microsoft a department, Workday a job family). The name has to match theirs exactly. Remove the key to receive every job in the country.
-5. `title_keywords` keeps only the jobs whose title contains one of the words, matched whole so `IT` does not match `Digital`. It is the fallback for P&G, whose Workday site publishes no categories.
+5. `title_keywords` keeps only the jobs whose title contains one of the words, matched whole so `IT` does not match `Digital`. It is the fallback for P&G, whose Workday site publishes no categories. A company can list several searches: Stryker or Boston Scientific keep every IT job, and only the software-sounding titles of their Engineering category.
 6. Not sure which categories exist? Run a check and read the log: every crawler prints the categories it filtered out, for example `Microsoft: ignored jobs in Digital Solution Area Specialists (1)`. Those names are the ones you can add.
 
 ### Step 2: Set Up Notifications 🔔
@@ -56,8 +56,9 @@ Jobs that were already announced are remembered in `job_crawlers-main/data/seen_
 ### Step 3 (Optional): Add Your Own Crawlers 🤖
 1. Navigate to `job_crawlers-main/crawlers`.
 2. Each crawler queries the company's public job API and returns `company / title / number / link / location` dicts.
-3. Companies hosted on Workday need no new crawler: add them to `urls.json` and reuse `workday_crawler.py`.
-4. Register the new crawler in `CRAWLERS` inside `app.py`.
+3. Companies hosted on a shared platform need no new crawler: add them to `urls.json` and map them in `PLATFORM_CRAWLERS` inside `job_check.py` to `workday_crawler.py`, `eightfold_crawler.py`, `greenhouse_crawler.py` or `radancy_crawler.py`.
+4. Register any other new crawler in `CRAWLERS` inside `job_check.py`.
+5. Every notification wraps the title in its company's tier: `😛 Especiales 😛` (Amazon, Microsoft, Intel, P&G), `🧛‍♀️ Semiespeciales 🧛‍♀️` and `🦨 normales 🦨` for the rest. The tiers live in `notifications/labels.py`.
 
 ### Step 4: Start the Crawler 🚀
 ```bash

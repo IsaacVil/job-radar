@@ -9,9 +9,13 @@ SEMI_SPECIAL_EMOJI = "🧛‍♀️"
 NORMAL_EMOJI = "🦨"
 
 
+def is_special(company):
+    return (company or "").strip().lower() in SPECIAL_COMPANIES
+
+
 def tier_emoji(company):
     name = (company or "").strip().lower()
-    if name in SPECIAL_COMPANIES:
+    if is_special(name):
         return SPECIAL_EMOJI
     if name in SEMI_SPECIAL_COMPANIES:
         return SEMI_SPECIAL_EMOJI

@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from notifications.labels import label_title
+from notifications.labels import is_special, label_title
 
 # ntfy needs no account and no token: the topic name is the whole address.
 # Pick an unguessable one and subscribe to it from the ntfy app.
@@ -29,7 +29,8 @@ def send_push(jobs):
             # The title goes in the query string: HTTP headers are latin-1 and cannot carry the emoji
             params={"title": label_title({"company": company, "title": f"{len(jobs)} new {company} job(s)"})},
             headers={
-                "Tags": "briefcase",
+                # "urgent" is ntfy's top priority: the phone keeps vibrating and shows a pop-over
+                "Priority": "urgent" if is_special(company) else "default",
                 "Click": jobs[0]["link"]
             },
             timeout=30

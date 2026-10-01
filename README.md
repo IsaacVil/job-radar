@@ -1,4 +1,4 @@
-# JobRADAR 📡
+# Job RADAR 📡
 
 Un radar de ofertas de trabajo: revisa las páginas de empleo de varias empresas cada 15 minutos y te manda una notificación al teléfono apenas aparece una oferta nueva que te interesa. Así puedes aplicar en las primeras horas, antes de que la oferta acumule miles de candidatos.
 

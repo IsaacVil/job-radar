@@ -244,6 +244,44 @@
                     "Technical",
                     "Engineering Services"
                 ]
+            },
+            {
+                "tenant": "hpe.wd5",
+                "site": "hpe/Jobsathpe",
+                "search_text": "",
+                "max_jobs": 100,
+                "categories": [
+                    "Temp Intern (Fixed Term)",
+                    "Reg Apprentice",
+                    "Temp Apprentice (Fixed Term)"
+                ],
+                "title_keywords": [
+                    "software",
+                    "developer",
+                    "programmer",
+                    "data",
+                    "IT",
+                    "cloud",
+                    "cyber",
+                    "cybersecurity",
+                    "security",
+                    "automation",
+                    "analytics",
+                    "digital",
+                    "technology",
+                    "technical support",
+                    "firmware",
+                    "embedded",
+                    "AI",
+                    "machine learning",
+                    "network",
+                    "QA",
+                    "engineer",
+                    "engineering",
+                    "hardware",
+                    "VLSI",
+                    "tech"
+                ]
             }
         ],
         "Boston Scientific": [
